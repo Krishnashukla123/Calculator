@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f7f7f7;
+        }
+        .header, .footer {
+            width: 100%;
+            max-width: 320px; /* Match header and footer width */
+            padding: 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            font-size: 2em;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            z-index: 1;
+        }
+        .header {
+            top: 0;
+        }
+        .footer {
+            bottom: 0;
+        }
+        .calculator {
+            border: 1px solid #ccc;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            margin-top: 80px; /* Ensure space for the fixed header */
+            margin-bottom: 80px; /* Ensure space for the fixed footer */
+        }
+        .display {
+            width: 100%;
+            height: 50px;
+            font-size: 1.5em;
+            text-align: right;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            background-color: #e0e0e0;
+        }
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        .buttons button {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+        }
+        .buttons button:hover {
+            background-color: #dcdcdc;
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+        }
+        .buttons .equal {
+            background-color: #4caf50;
+            color: #fff;
+        }
+        .buttons .equal:hover {
+            background-color: #45a049;
+        }
+        .buttons .operator {
+            background-color: #f9a825;
+            color: #fff;
+        }
+        .buttons .operator:hover {
+            background-color: #f57f17;
+        }
+        .buttons .clear {
+            background-color: #e53935;
+            color: #fff;
+            grid-column: span 4;
+        }
+        .buttons .clear:hover {
+            background-color: #d32f2f;
+        }
+        .history {
+            margin: 10px 0;
+            text-align: center;
+        }
+        .history ul {
+            list-style: none;
+            padding: 0;
+        }
+        .history li {
+            background: #f0f0f0;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .history button {
+            background: #e53935;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .history button:hover {
+            background: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    Calculate
+    <div class="history">
+        <button onclick="toggleHistory()">History</button>
+    </div>
+</div>
+
+<div class="calculator">
+    <input type="text" class="display" id="display" readonly>
+    <div class="buttons">
+        <button onclick="appendNumber(7)">7</button>
+        <button onclick="appendNumber(8)">8</button>
+        <button onclick="appendNumber(9)">9</button>
+        <button onclick="setOperator('/')" class="operator">/</button>
+        
+        <button onclick="appendNumber(4)">4</button>
+        <button onclick="appendNumber(5)">5</button>
+        <button onclick="appendNumber(6)">6</button>
+        <button onclick="setOperator('*')" class="operator">*</button>
+        
+        <button onclick="appendNumber(1)">1</button>
+        <button onclick="appendNumber(2)">2</button>
+        <button onclick="appendNumber(3)">3</button>
+        <button onclick="setOperator('-')" class="operator">-</button>
+        
+        <button onclick="appendNumber(0)">0</button>
+        <button onclick="appendNumber('.')">.</button>
+        <button onclick="calculate()" class="equal">=</button>
+        <button onclick="setOperator('+')" class="operator">+</button>
+        
+        <button onclick="clearDisplay()" class="clear">C</button>
+    </div>
+    <div class="history-content" style="display: none;">
+        <h3>History</h3>
+        <ul id="history-list"></ul>
+        <button onclick="clearHistory()">Clear History</button>
+    </div>
+</div>
+
+<div class="footer">
+    &copy; 2024 Proffesional Calculator
+</div>
+
+<script>
+    let display = document.getElementById('display');
+    let currentInput = '';
+    let operator = '';
+    const historyList = document.getElementById('history-list');
+    const historyContent = document.querySelector('.history-content');
+
+    function appendNumber(number) {
+        currentInput += number;
+        display.value = currentInput;
+    }
+
+    function setOperator(op) {
+        if (currentInput === '') return;
+        currentInput += ' ' + op + ' ';
+        display.value = currentInput;
+    }
+
+    function calculate() {
+        try {
+            const result = eval(currentInput);
+            display.value = result;
+            currentInput = result;
+            addToHistory(`${currentInput} = ${result}`);
+        } catch {
+            display.value = 'Error';
+            currentInput = '';
+        }
+    }
+
+    function clearDisplay() {
+        display.value = '';
+        currentInput = '';
+    }
+
+    function addToHistory(entry) {
+        const historyItem = document.createElement('li');
+        historyItem.textContent = entry;
+        historyList.appendChild(historyItem);
+        saveHistory();
+    }
+
+    function saveHistory() {
+        const items = historyList.innerHTML;
+        localStorage.setItem('calculatorHistory', items);
+        localStorage.setItem('historyTimestamp', new Date().getTime());
+    }
+
+    function loadHistory() {
+        const items = localStorage.getItem('calculatorHistory');
+        if (items) {
+            historyList.innerHTML = items;
+            const timestamp = localStorage.getItem('historyTimestamp');
+            if (timestamp && new Date().getTime() - timestamp > 15 * 24 * 60 * 60 * 1000) {
+                clearHistory();
+            }
+        }
+    }
+
+    function clearHistory() {
+        historyList.innerHTML = '';
+        localStorage.removeItem('calculatorHistory');
+        localStorage.removeItem('historyTimestamp');
+    }
+
+    function toggleHistory() {
+        historyContent.style.display = historyContent.style.display === 'none' ? 'block' : 'none';
+        loadHistory();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadHistory();
+    });
+</script>
+
+</body>
+</html>
